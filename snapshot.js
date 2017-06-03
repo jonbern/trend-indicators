@@ -27,7 +27,7 @@ module.exports = (historyTS) => {
   });
 
   return {
-    percebtChangeFrom52WeekHigh: (prevClose / max) - 1,
+    percentChangeFrom52WeekHigh: (prevClose / max) - 1,
     percentChangeFrom52WeekLow: (prevClose / min) - 1,
     changeFrom52WeekHigh: prevClose - max,
     changeFrom52WeekLow: prevClose - min,

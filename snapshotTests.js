@@ -14,7 +14,7 @@ describe('Snapshot', function() {
     ];
 
     let expected = {
-      percebtChangeFrom52WeekHigh: -0.75,
+      percentChangeFrom52WeekHigh: -0.75,
       percentChangeFrom52WeekLow: 1.5,
       changeFrom52WeekHigh: -75,
       changeFrom52WeekLow: 15,
@@ -36,7 +36,7 @@ describe('Snapshot', function() {
     ];
 
     let expected = {
-      percebtChangeFrom52WeekHigh: -0.75,
+      percentChangeFrom52WeekHigh: -0.75,
       percentChangeFrom52WeekLow: 1.5,
       changeFrom52WeekHigh: -75,
       changeFrom52WeekLow: 15,
