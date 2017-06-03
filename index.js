@@ -8,7 +8,7 @@ const volatility = require('./volatility');
 const colums = require('./columns');
 
 module.exports = {
-  moMA: moMa,
+  moMA: moMA,
   movingAverage: movingAverage,
   toTimeSeries: toTimeSeries,
   timeSeriesSampler: timeSeriesSampler,
