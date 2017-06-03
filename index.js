@@ -5,7 +5,7 @@ const toTimeSeries = require('./toTimeSeries');
 const timeSeriesSampler = require('./timeSeriesSampler');
 const snapshot = require('./snapshot');
 const volatility = require('./volatility');
-const colums = require('./columns');
+const columns = require('./columns');
 
 module.exports = {
   moMA: moMA,
