@@ -1,5 +1,5 @@
 'use strict';
-const moMA = require('./moMATrend');
+const moMA = require('./moMaTrend');
 const movingAverage = require('./movingAverage');
 const toTimeSeries = require('./toTimeSeries');
 const timeSeriesSampler = require('./timeSeriesSampler');
