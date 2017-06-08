@@ -5,17 +5,20 @@ const indicators = require('./index');
 describe('Trend Indicators package', () => {
 
   [
-    'moMA',
-    'movingAverage',
+    'getMoMA',
+    'getMovingAverage',
+    'getSnapshot',
+    'getVolatility',
     'toTimeSeries',
     'timeSeriesSampler',
-    'snapshot',
-    'volatility',
-    'columns'
   ].forEach(functionName => {
     it(`it has ${functionName} function`, () => {
-      expect(typeof indicators[functionName] === 'function');
+      expect(typeof indicators[functionName] === 'function').toBe(true);
     });
+  });
+
+  it('has columns property', () => {
+    expect(indicators.columns).toBeDefined();
   });
 
 });

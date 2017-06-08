@@ -1,11 +1,11 @@
 'use strict';
 
 module.exports = {
-  moMA: require('./moMaTrend'),
-  movingAverage: require('./movingAverage'),
-  toTimeSeries: require('./toTimeSeries'),
-  timeSeriesSampler: require('./timeSeriesSampler'),
-  snapshot: require('./snapshot'),
-  volatility: require('./volatility'),
+  getMoMA: require('./indicators/moMaTrend'),
+  getMovingAverage: require('./indicators/movingAverage'),
+  getSnapshot: require('./indicators/snapshot'),
+  getVolatility: require('./indicators/volatility'),
+  toTimeSeries: require('./utils/toTimeSeries'),
+  timeSeriesSampler: require('./utils/timeSeriesSampler'),
   columns: require('./columns')
 }

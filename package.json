@@ -8,7 +8,7 @@
     "url": "https://github.com/jonbern/trend-indicators.git"
   },
   "scripts": {
-    "test": "mocha **/*Tests.js"
+    "test": "mocha '**/*Tests.js'"
   },
   "author": "Jon K. Bernhardsen",
   "license": "GPL-3.0",

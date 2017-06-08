@@ -1,5 +1,5 @@
 'use strict';
-const columns = require('./columns');
+const columns = require('../columns');
 
 module.exports = (historyTS) => {
   let tsSorted = historyTS
