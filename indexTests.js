@@ -20,9 +20,9 @@ describe('Trend Indicators package', () => {
   [
     'columns',
     'duration'
-  ].forEach(functionName => {
-    it(`it has ${functionName} property`, () => {
-      expect(indicators[functionName]).toBeDefined();
+  ].forEach(propertyName => {
+    it(`it has ${propertyName} property`, () => {
+      expect(indicators[propertyName]).toBeDefined();
     });
   });
 
