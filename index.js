@@ -7,5 +7,6 @@ module.exports = {
   getVolatility: require('./indicators/volatility'),
   toTimeSeries: require('./utils/toTimeSeries'),
   timeSeriesSampler: require('./utils/timeSeriesSampler'),
-  columns: require('./columns')
+  columns: require('./utils/columns'),
+  duration: require('./utils/duration')
 }

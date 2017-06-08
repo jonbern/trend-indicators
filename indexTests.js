@@ -17,8 +17,15 @@ describe('Trend Indicators package', () => {
     });
   });
 
-  it('has columns property', () => {
-    expect(indicators.columns).toBeDefined();
+  [
+    'columns',
+    'duration'
+  ].forEach(functionName => {
+    it(`it has ${functionName} property`, () => {
+      expect(indicators[functionName]).toBeDefined();
+    });
   });
+
+
 
 });
