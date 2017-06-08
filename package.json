@@ -3,9 +3,9 @@
   "version": "0.0.1",
   "description": "Technical indicators for identifying trending stocks",
   "main": "index.js",
-  "repository" : { 
-    "type" : "git", 
-    "url" : "https://github.com/jonbern/trend-indicators.git"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jonbern/trend-indicators.git"
   },
   "scripts": {
     "test": "mocha **/*Tests.js"
