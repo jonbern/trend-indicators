@@ -1,22 +1,24 @@
 'use strict';
+const columns = require('../utils/columns');
 
-module.exports = (timeSeries, period, column) => {
+module.exports = (timeSeries, lookback, column) => {
   let ma = {};
+  let sum = 0;
+  let avg;
+  let date;
+
   for (let i = 0; i < timeSeries.length; i++) {
-    let avg;
-    if (period === 0) {
-      avg = NaN;
-    } else if (i < period - 1) {
-      avg = null;
+    if (i < lookback) {
+      sum += timeSeries[i][column];
+      avg = sum / (i + 1);
     } else {
-      let sum = 0;
-      for (let j = 0; j <= period - 1; j++) {
-        sum += timeSeries[i - j][column];
-      }
-      avg = sum / period;
+      sum -= timeSeries[i - 1 - (lookback - 1)][column];
+      sum += timeSeries[i][column];
+      avg = sum / lookback;
     }
-    ma[timeSeries[i][0]] = 
-      Number.isFinite(avg) ? +avg.toFixed(2) : avg;
+
+    date = timeSeries[i][columns.date];
+    ma[date] = avg;
   }
 
   return ma;
