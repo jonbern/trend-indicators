@@ -1,6 +1,6 @@
 'use strict';
 const expect = require('expectations');
-const mmt = require('./moMaTrend');
+const mmt = require('./moma');
 
 describe('Monthly Moving Average Trend', () => {
 

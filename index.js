@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = {
-  getMoMA: require('./indicators/moMaTrend'),
+  getMoma: require('./indicators/moma'),
   getMovingAverage: require('./indicators/movingAverage'),
   getSnapshot: require('./indicators/snapshot'),
   getVolatility: require('./indicators/volatility'),

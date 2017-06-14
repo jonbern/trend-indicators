@@ -5,7 +5,7 @@ const indicators = require('./index');
 describe('Trend Indicators package', () => {
 
   [
-    'getMoMA',
+    'getMoma',
     'getMovingAverage',
     'getSnapshot',
     'getVolatility',
