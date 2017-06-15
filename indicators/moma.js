@@ -27,15 +27,15 @@ module.exports = (mad, minimumSamplesThreshold = 16, maxValueLowerThreshold = 0.
       samples++;
     });
 
-  let moMA = null;
+  let moma = null;
 
   if (isAboveMaxValueThreshold
       && samples > minimumSamplesThreshold 
       && samples > 0 
       && gains > 0 
       && mad[mad.length - 1][1] > maxValue * (1 - lastSampleMaxValueThreshold)) {
-    moMA = +(gains/(samples - 1)).toFixed(3);
+    moma = +(gains/(samples - 1)).toFixed(3);
   }
 
-  return moMA;
+  return moma;
 }

@@ -1,8 +1,8 @@
 'use strict';
 const expect = require('expectations');
-const mmt = require('./moma');
+const moma = require('./moma');
 
-describe('Monthly Moving Average Trend', () => {
+describe('Monthly moving average trend', () => {
 
   [
     {
@@ -164,8 +164,8 @@ describe('Monthly Moving Average Trend', () => {
     }
   ]
   .forEach(testCase => {
-    it('calculates MoMA trend when: ' + testCase.name, () => {
-      let result = mmt(testCase.mad, testCase.minSamples);
+    it('calculates moma trend when: ' + testCase.name, () => {
+      let result = moma(testCase.mad, testCase.minSamples);
       expect(result).toEqual(testCase.expected);
     });
 
