@@ -1,7 +1,14 @@
 'use strict';
+const moment = require('moment');
 
-module.exports = (dateMap) => {
-  return Object.keys(dateMap).map(date => {
+module.exports = (dateMap, sort = true) => {
+  let timeSeries = Object.keys(dateMap).map(date => {
     return [date, dateMap[date]];
-  }).sort();
+  });
+  
+  if (sort) {
+    timeSeries.sort();
+  }
+
+  return timeSeries;
 }

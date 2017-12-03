@@ -18,8 +18,8 @@ module.exports = (timeSeries, period, column) => {
   let returns = [];
 
   for (let i = 1; i < values.length; i++) {
-    let ret = values[i] / values[i - 1];
-    returns.push(ret);
+    let dailyReturn = values[i] / values[i - 1];
+    returns.push(dailyReturn);
   }
 
   let sumReturns = returns.reduce((acc, curr) => {

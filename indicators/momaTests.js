@@ -1,173 +1,228 @@
 'use strict';
 const expect = require('expectations');
-const moma = require('./moma');
+const sinon = require('sinon');
+const proxyquire = require('proxyquire').noPreserveCache();
 
 describe('Monthly moving average trend', () => {
 
-  [
-    {
-      name: '2 samples, null values',
-      mad: [
-        ['2016-01-01', null],
-        ['2016-01-02', null]
-      ],
-      minSamples: 0,
-      expected: null
-    },
-    {
-      name: '2 samples, 1 value',
-      mad: [
-        ['2016-01-01', null],
-        ['2016-01-02', 2]
-      ],
-      minSamples: 0,
-      expected: null
-    },
-    {
-      name: '2 samples, 1 gain',
-      mad: [
-        ['2016-01-01', 1],
-        ['2016-01-02', 2]
-      ],
-      minSamples: 0,
-      expected: 1
-    },
-    {
-      name: '2 samples, 1 gain (but not large enough to count)',
-      mad: [
-        ['2016-01-01', 100],
-        ['2016-01-02', 102]
-      ],
-      minSamples: 0,
-      expected: null
-    },
-    {
-      name: '2 samples, 1 gain (gainrease is larger than minPercDiff)',
-      mad: [
-        ['2016-01-01', 100],
-        ['2016-01-02', 103]
-      ],
-      minSamples: 0,
-      expected: 1
-    },
-    {
-      name: '2 samples, 1 dec',
-      mad: [
-        ['2016-01-01', 2],
-        ['2016-01-02', 1]
-      ],
-      minSamples: 0,
-      expected: null
-    },
-    {
-      name: '4 samples, 2 gain, 1 dec',
-      mad: [
-        ['2016-01-01', 10],
-        ['2016-01-02', null],
-        ['2016-01-03', 30],
-        ['2016-01-04', null],
-        ['2016-01-05', null],
-        ['2016-01-06', 60],
-        ['2016-01-05', null],
-        ['2016-01-06', 58]
-      ],
-      minSamples: 0,
-      expected: 0.667
-    },
-    {
-      name: '12 samples, 7 gain, 4 dec',
-      mad: [
-        ['2016-01-01', 99],
-        ['2016-01-02', 97],
-        ['2016-01-03', 94],
-        ['2016-01-04', 91],
-        ['2016-01-05', 88],
-        ['2016-01-06', 91],
-        ['2016-01-07', 94],
-        ['2016-01-08', 97],
-        ['2016-01-09', 100],
-        ['2016-01-10', 103],
-        ['2016-01-11', 105],
-        ['2016-01-12', 107]
-      ],
-      minSamples: 0,
-      expected: 0.636
-    },
-    {
-      name: '12 samples, 7 gain, 4 dec, mad.length < minSamples',
-      mad: [
-        ['2016-01-01', 99],
-        ['2016-01-02', 97],
-        ['2016-01-03', 94],
-        ['2016-01-04', 91],
-        ['2016-01-05', 88],
-        ['2016-01-06', 91],
-        ['2016-01-07', 94],
-        ['2016-01-08', 97],
-        ['2016-01-09', 100],
-        ['2016-01-10', 103],
-        ['2016-01-11', 105],
-        ['2016-01-12', 107]
-      ],
-      minSamples: 20,
-      expected: null,
-    },
-    {
-      name: '12 samples, 7 gain, 4 dec, mad.length >= minSamples',
-      mad: [
-        ['2016-01-01', 99],
-        ['2016-01-02', 97],
-        ['2016-01-03', 94],
-        ['2016-01-04', 91],
-        ['2016-01-05', 88],
-        ['2016-01-06', 91],
-        ['2016-01-07', 94],
-        ['2016-01-08', 97],
-        ['2016-01-09', 100],
-        ['2016-01-10', 103],
-        ['2016-01-11', 105],
-        ['2016-01-12', 107]
-      ],
-      minSamples: 5,
-      expected: 0.636
-    },
-    {
-      name: '12 samples, 7 gain, 4 dec, last sample lower than 5% of max sample',
-      mad: [
-        ['2016-01-01', 5],
-        ['2016-01-02', 4],
-        ['2016-01-03', 3],
-        ['2016-01-04', 2],
-        ['2016-01-05', 1],
-        ['2016-01-06', 2],
-        ['2016-01-07', 3],
-        ['2016-01-08', 4],
-        ['2016-01-09', 10],
-        ['2016-01-10', 6],
-        ['2016-01-11', 7],
-        ['2016-01-12', 8]
-      ],
-      minSamples: 0,
-      expected: null
-    },
-    {
-      name: '6 samples and a 15% drop from top. Should be excluded (null)',
-      mad: [
-        ['2016-01-01', 90],
-        ['2016-01-02', 100],
-        ['2016-01-03', 90],
-        ['2016-01-04', 84.5],
-        ['2016-01-04', 105]
-      ],
-      minSamples: 0,
-      expected: null
-    }
-  ]
-  .forEach(testCase => {
-    it('calculates moma trend when: ' + testCase.name, () => {
-      let result = moma(testCase.mad, testCase.minSamples);
-      expect(result).toEqual(testCase.expected);
+  let moma;
+  let timeSeries;
+  let getMovingAverage;
+  let timeSeriesSampler;
+  let movingAverage;
+  let samples;
+
+  const movingAverageLength = 200;
+  const samplingInterval = 10;
+
+  const calculateMoma = (setup) => {
+    timeSeries = ['not significant, because ma function is mocked'];
+    movingAverage = ['not significant, because sampler function is mocked']
+
+    getMovingAverage = sinon.stub().returns(movingAverage);
+    timeSeriesSampler = sinon.stub().returns(setup.samples);
+  
+    moma = proxyquire('./moma', {
+      './getMovingAverage': getMovingAverage,
+      '../utils/timeSeriesSampler': timeSeriesSampler
     });
+
+    return moma(timeSeries, setup.movingAverageLength, setup.samplingInterval);
+  }
+
+  it('invokes movingAverage', () => {
+    calculateMoma({
+      movingAverageLength,
+      samplingInterval,
+      samples: [
+        ['2017-01-01', 10],
+        ['2017-01-01', 11]
+      ]
+    });
+    expect(getMovingAverage.calledWith(timeSeries, 200, 1, true, true)).toBe(true);
+  });
+
+  it('invokes timeSeriesSampler', () => {
+    calculateMoma({
+      movingAverageLength,
+      samplingInterval,
+      samples: [
+        ['2017-01-01', 10],
+        ['2017-01-01', 11]
+      ]
+    });
+    expect(timeSeriesSampler.calledWith(movingAverage, 10)).toBe(true);
+  });
+
+
+
+  describe('#score', () => {
+
+    describe('when perfect score', () => {
+
+      it('returns 1', () => {
+        var result = calculateMoma({
+          movingAverageLength,
+          samplingInterval,
+          samples: [
+            ['2017-01-01', 10],
+            ['2017-01-01', 11],
+            ['2017-01-01', 12],
+            ['2017-01-01', 13],
+            ['2017-01-01', 14],
+            ['2017-01-01', 15],
+            ['2017-01-01', 16],
+            ['2017-01-01', 17],
+            ['2017-01-01', 18],
+            ['2017-01-01', 19],
+            ['2017-01-01', 20]
+          ]
+        });
+        expect(result.score).toBe(1);
+      });
+
+    });
+
+    describe('when no gains', () => {
+
+      it('returns null', () => {
+        var result = calculateMoma({
+          movingAverageLength,
+          samplingInterval,
+          samples: [
+            ['2017-01-01', 10],
+            ['2017-01-01', 10],
+            ['2017-01-01', 10],
+            ['2017-01-01', 10],
+          ]
+        });
+        expect(result.score).toBe(null);
+      });
+
+    });
+
+    describe('when no samples', () => {
+      
+      it('returns null', () => {
+        var result = calculateMoma({
+          movingAverageLength,
+          samplingInterval,
+          samples: []
+        });
+        expect(result.score).toBe(null);
+      });
+
+    });
+
+    describe('when 4 out of 10 gains', () => {
+      
+        it('returns correct score', () => {
+          var result = calculateMoma({
+            movingAverageLength,
+            samplingInterval,
+            samples: [
+              ['2017-01-01', 10],
+              ['2017-01-01', 9],
+              ['2017-01-01', 9.2],
+              ['2017-01-01', 9.4],
+              ['2017-01-01', 8],
+              ['2017-01-01', 7],
+              ['2017-01-01', 6],
+              ['2017-01-01', 6.3],
+              ['2017-01-01', 6.5],
+              ['2017-01-01', 5],
+              ['2017-01-01', 5]
+            ]
+          });
+          expect(result.score).toBe(0.4);
+        });
+            
+      });
+
+  });
+
+  describe('#lastSampleBelowMaxSampleRange', () => {
+
+    describe('when last value is 5% below maximum sample', () => {
+      
+      it('is true', () => {
+        var result = calculateMoma({
+          movingAverageLength,
+          samplingInterval,
+          samples: [
+            ['2017-01-01', 1],
+            ['2017-01-01', 2],
+            ['2017-01-01', 10],
+            ['2017-01-01', 9.4],
+          ]
+        });
+        expect(result.lastSampleBelowMaxSampleRange).toBe(true);
+      });
+
+    });
+
+    describe('when last value is less than 5% below maximum sample', () => {
+      
+      it('is true', () => {
+        var result = calculateMoma({
+          movingAverageLength,
+          samplingInterval,
+          samples: [
+            ['2017-01-01', 1],
+            ['2017-01-01', 2],
+            ['2017-01-01', 10],
+            ['2017-01-01', 9.6],
+          ]
+        });
+        expect(result.lastSampleBelowMaxSampleRange).toBe(false);
+      });
+
+    });
+
+    describe('when last value is maximum sample', () => {
+      
+      it('is true', () => {
+        var result = calculateMoma({
+          movingAverageLength,
+          samplingInterval,
+          samples: [
+            ['2017-01-01', 1],
+            ['2017-01-01', 2],
+            ['2017-01-01', 10],
+            ['2017-01-01', 11],
+          ]
+        });
+        expect(result.lastSampleBelowMaxSampleRange).toBe(false);
+      });
+
+    });
+
+  });
+
+  describe('#sampleCount', () => {
+        
+      it('when 4', () => {
+        var result = calculateMoma({
+          movingAverageLength,
+          samplingInterval,
+          samples: [
+            ['2017-01-01', 1],
+            ['2017-01-01', 2],
+            ['2017-01-01', 10],
+            ['2017-01-01', 11]
+          ]
+        });
+        expect(result.sampleCount).toBe(4);
+      });
+
+      it('when empty array it is 0', () => {
+        var result = calculateMoma({
+          movingAverageLength,
+          samplingInterval,
+          samples: []
+        });
+        expect(result.sampleCount).toBe(0);
+      });
 
   });
 

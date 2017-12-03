@@ -1,41 +1,46 @@
 'use strict';
+const columns = require('../utils/columns');
+const getMovingAverage = require('./getMovingAverage');
+const timeSeriesSampler = require('../utils/timeSeriesSampler');
 
-module.exports = (mad, minimumSamplesThreshold = 16, maxValueLowerThreshold = 0.15) => {
-  let gains = 0;
-  let samples = 0;
+module.exports = (timeSeries, movingAverageLength, samplingInterval) => {
+  let ma = getMovingAverage(timeSeries, movingAverageLength, columns.close, true, true);
+  let samples = timeSeriesSampler(ma, samplingInterval);
+
+  let currentValue;
+  let previousValue;
   let maxValue;
-  let isAboveMaxValueThreshold = true;
-  let lastSampleMaxValueThreshold = 0.05;
+  let gains = 0;
+  let score = null;
 
-  const epsilon = mad[0][1] * 0.02;
+  let lastSampleBelowMaxSampleRange = false;
 
-  mad
-    .filter(row => !!row[1])
-    .forEach((row, i, array) => {
-      if (i > 0 && (row[1] - array[i - 1][1] > epsilon)) {
-        gains++;
-      }
+  samples.forEach(sample => {
+    currentValue = sample[1];
+    
+    if (previousValue !== undefined && currentValue - previousValue > 0.1) {
+      gains++;
+    }
 
-      if (maxValue === undefined || row[1] > maxValue) {
-        maxValue = row[1];
-      }
+    if (maxValue === undefined || currentValue > maxValue) {
+      maxValue = currentValue;
+    }
 
-      if (row[1] < maxValue * (1 - maxValueLowerThreshold)) {
-        isAboveMaxValueThreshold = false;
-      }
-
-      samples++;
-    });
-
-  let moma = null;
-
-  if (isAboveMaxValueThreshold
-      && samples > minimumSamplesThreshold 
-      && samples > 0 
-      && gains > 0 
-      && mad[mad.length - 1][1] > maxValue * (1 - lastSampleMaxValueThreshold)) {
-    moma = +(gains/(samples - 1)).toFixed(3);
+    previousValue = currentValue;
+  });
+  
+  if (previousValue < maxValue * 0.95) {
+    lastSampleBelowMaxSampleRange = true;
   }
 
-  return moma;
+  if (gains > 0) {
+    score = +(gains/(samples.length - 1)).toFixed(3);
+  }
+
+  return {
+    score,
+    sampleCount: samples.length,
+    lastSampleBelowMaxSampleRange
+  
+  };
 }

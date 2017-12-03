@@ -2,7 +2,7 @@
 
 module.exports = {
   getMoma: require('./indicators/moma'),
-  getMovingAverage: require('./indicators/movingAverage'),
+  getMovingAverage: require('./indicators/getMovingAverage'),
   getSnapshot: require('./indicators/snapshot'),
   getVolatility: require('./indicators/volatility'),
   toTimeSeries: require('./utils/toTimeSeries'),
