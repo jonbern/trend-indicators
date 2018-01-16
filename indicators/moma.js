@@ -3,7 +3,7 @@ const columns = require('../utils/columns');
 const getMovingAverage = require('./getMovingAverage');
 const timeSeriesSampler = require('../utils/timeSeriesSampler');
 
-module.exports = (timeSeries, movingAverageLength, samplingInterval) => {
+module.exports = (timeSeries, movingAverageLength, samplingInterval, gainThreshold = 0.1) => {
   let ma = getMovingAverage(timeSeries, movingAverageLength, columns.close, true, true);
   let samples = timeSeriesSampler(ma, samplingInterval);
 
@@ -18,8 +18,12 @@ module.exports = (timeSeries, movingAverageLength, samplingInterval) => {
   samples.forEach(sample => {
     currentValue = sample[1];
     
-    if (previousValue !== undefined && currentValue - previousValue > 0.1) {
+    if (previousValue !== undefined && currentValue - previousValue > gainThreshold) {
       gains++;
+    } else if (gains > 1) {
+      gains -= 2;
+    } else if (gains > 0) {
+      gains--;
     }
 
     if (maxValue === undefined || currentValue > maxValue) {

@@ -134,7 +134,7 @@ describe('Monthly moving average trend', () => {
               ['2017-01-01', 5]
             ]
           });
-          expect(result.score).toBe(0.4);
+          expect(result.score).toBe(null);
         });
             
       });
